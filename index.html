@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>불규칙 동사 퀴즈 (뜻 포함)</title>
+    <title>불규칙 동사 퀴즈 (업그레이드 버전)</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;500;700&display=swap" rel="stylesheet">
     <style>
@@ -16,6 +16,7 @@
         .feedback.incorrect { color: #dc2626; }
         #verb-list-container { max-height: 60vh; }
         .pagination-btn:disabled { background-color: #d1d5db; cursor: not-allowed; }
+        .group-select-btn { transition: all 0.2s; }
     </style>
 </head>
 <body class="bg-gray-100">
@@ -23,64 +24,71 @@
         <div class="bg-white rounded-2xl shadow-lg overflow-hidden">
             <header class="bg-blue-600 p-6 text-white text-center">
                 <h1 class="text-3xl font-bold">불규칙 동사 마스터하기</h1>
-                <p class="mt-2 text-blue-200">규칙별로 리스트를 확인하고, 랜덤 퀴즈에 도전해보세요!</p>
+                <p class="mt-2 text-blue-200">규칙별로 학습하고, 원하는 규칙만 골라 테스트 해보세요!</p>
             </header>
 
             <div class="p-6 md:p-8">
                 <div class="flex justify-center border-b-2 border-gray-200 mb-6">
                     <button id="tab-list" class="tab-button text-lg font-semibold py-3 px-8 border-b-4 border-transparent transition-colors duration-300">규칙별 리스트</button>
-                    <button id="tab-test" class="tab-button text-lg font-semibold py-3 px-8 border-b-4 border-transparent transition-colors duration-300">랜덤 테스트</button>
+                    <button id="tab-test" class="tab-button text-lg font-semibold py-3 px-8 border-b-4 border-transparent transition-colors duration-300">규칙별 테스트</button>
                 </div>
 
                 <div id="main-content">
                     <div id="list-view" class="hidden">
                         <div class="flex justify-between items-center mb-4 px-2">
-                            <h2 id="group-title" class="text-2xl font-bold text-gray-800 text-center flex-grow"></h2>
+                            <h2 id="group-title" class="text-xl md:text-2xl font-bold text-gray-800 text-center flex-grow"></h2>
                             <div class="flex space-x-2">
-                                <button id="prev-btn" class="pagination-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">&lt; 이전</button>
-                                <button id="next-btn" class="pagination-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">다음 &gt;</button>
+                                <button id="prev-btn" class="pagination-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">&lt;</button>
+                                <button id="next-btn" class="pagination-btn bg-gray-200 hover:bg-gray-300 text-gray-800 font-bold py-2 px-4 rounded-lg transition-colors">&gt;</button>
                             </div>
                         </div>
                         <div id="verb-list-container" class="overflow-y-auto border rounded-lg">
                             <table class="min-w-full divide-y divide-gray-200">
                                 <thead class="bg-gray-50 sticky top-0">
                                     <tr>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">원형 (Base)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과거 (Past)</th>
-                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과거분사 (P.P.)</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">원형</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과거</th>
+                                        <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">과거분사</th>
                                         <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">뜻</th>
                                     </tr>
                                 </thead>
-                                <tbody id="verb-list-body" class="bg-white divide-y divide-gray-200">
-                                    </tbody>
+                                <tbody id="verb-list-body" class="bg-white divide-y divide-gray-200"></tbody>
                             </table>
                         </div>
                     </div>
 
                     <div id="test-view" class="hidden">
-                        <div id="test-start-screen" class="text-center">
-                            <h2 class="text-2xl font-bold text-gray-800 mb-2">랜덤 테스트 준비</h2>
-                            <p class="text-gray-600 mb-6">10개의 랜덤 불규칙 동사 퀴즈를 시작합니다.</p>
-                            <button id="start-test-btn" class="bg-green-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-green-700 transition-all duration-300 shadow-md text-lg">테스트 시작!</button>
+                        <div id="test-select-screen" class="text-center">
+                            <h2 class="text-2xl font-bold text-gray-800 mb-4">테스트할 규칙 그룹 선택</h2>
+                            <div id="test-group-buttons" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                                </div>
                         </div>
                         
                         <div id="quiz-screen" class="hidden">
+                             <div class="flex justify-between items-center mb-4">
+                                <h2 id="quiz-title" class="text-2xl font-bold text-gray-800"></h2>
+                                <button id="back-to-select-btn" class="bg-gray-200 hover:bg-gray-300 text-gray-800 font-semibold py-2 px-4 rounded-lg transition-colors">목록으로</button>
+                            </div>
                             <div id="quiz-container" class="space-y-4"></div>
-                            <div class="text-center mt-8">
-                                <button id="grade-btn" class="bg-blue-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md text-lg">채점하기</button>
+                            <div id="quiz-actions" class="text-center mt-8">
+                                <button id="grade-btn" class="bg-blue-600 text-white font-bold py-3 px-10 rounded-lg hover:bg-blue-700 shadow-md text-lg">채점하기</button>
                             </div>
                         </div>
 
-                        <div id="result-screen" class="hidden text-center">
-                            <h2 class="text-3xl font-bold text-blue-800">테스트 결과</h2>
-                            <p id="score-text" class="text-5xl font-bold my-6 text-gray-700"></p>
-                            <div id="submission-form" class="max-w-sm mx-auto bg-gray-50 p-6 rounded-lg border">
-                                <h3 class="text-xl font-semibold mb-4">결과 전송하기</h3>
-                                <input type="text" id="name-input" placeholder="송신자 이름을 입력하세요" class="w-full p-3 border-2 border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
-                                <button id="submit-btn" class="w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 transition-all duration-300 shadow-md">스프레드시트로 전송</button>
+                        <div id="result-screen" class="hidden text-center mt-6">
+                            <div class="bg-blue-50 border-2 border-blue-200 p-6 rounded-lg">
+                                <h2 class="text-3xl font-bold text-blue-800">테스트 결과</h2>
+                                <p id="score-text" class="text-5xl font-bold my-5 text-gray-700"></p>
+                                <button id="show-submission-form-btn" class="bg-green-600 text-white font-bold py-2 px-6 rounded-lg hover:bg-green-700">결과 기록하기</button>
+                            </div>
+
+                            <div id="submission-form" class="hidden max-w-sm mx-auto bg-gray-50 p-6 rounded-lg border mt-6">
+                                <h3 class="text-xl font-semibold mb-4">결과 전송</h3>
+                                <input type="text" id="name-input" placeholder="기록할 이름을 입력하세요" class="w-full p-3 border-2 border-gray-300 rounded-md mb-4 focus:outline-none focus:ring-2 focus:ring-blue-500">
+                                <button id="submit-btn" class="w-full bg-purple-600 text-white font-bold py-3 rounded-lg hover:bg-purple-700 shadow-md">스프레드시트로 전송</button>
                                 <p id="submit-status" class="mt-4 text-sm h-5"></p>
                             </div>
-                            <button id="retry-btn" class="mt-6 bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600 transition-all duration-300">다시 풀기</button>
+                            <button id="retry-btn" class="mt-6 bg-gray-500 text-white font-bold py-2 px-6 rounded-lg hover:bg-gray-600">다른 그룹 테스트하기</button>
                         </div>
                     </div>
                 </div>
@@ -90,292 +98,126 @@
 
     <script>
         // =================================================================
-        // 설정: Google Apps Script 웹 앱 URL을 여기에 붙여넣으세요.
+        // 설정
         // =================================================================
-        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxrQ3LsSDJgBKHvbEqe4-tI8AbobzAx81ttbCq5yRvphMth1ZONAMcTdkKWDJyZhq0/exec"; 
+        const SCRIPT_URL = "https://script.google.com/macros/s/AKfycbxxrQ3LsSDJgBKHvbEqe4-tI8AbobzAx81ttbCq5yRvphMth1ZONAMcTdkKWDJyZhq0/exec";
+        const VERB_GROUP_SIZE_LIMIT = 20;
 
-        // === UPDATED AND GROUPED VERB LIST (규칙별로 그룹화된 동사 리스트) ===
-        const verbGroups = [
-            {
-                title: "A-A-A형 (변화 없음)",
-                list: [
-                    { base: 'bet', past: 'bet', pp: 'bet', mean: '돈을 걸다' },
-                    { base: 'broadcast', past: 'broadcast', pp: 'broadcast', mean: '방송하다' },
-                    { base: 'burst', past: 'burst', pp: 'burst', mean: '터지다' },
-                    { base: 'cast', past: 'cast', pp: 'cast', mean: '던지다' },
-                    { base: 'cost', past: 'cost', pp: 'cost', mean: '비용이 들다' },
-                    { base: 'cut', past: 'cut', pp: 'cut', mean: '자르다' },
-                    { base: 'forecast', past: 'forecast', pp: 'forecast', mean: '예보하다' },
-                    { base: 'hit', past: 'hit', pp: 'hit', mean: '치다' },
-                    { base: 'hurt', past: 'hurt', pp: 'hurt', mean: '다치게 하다' },
-                    { base: 'let', past: 'let', pp: 'let', mean: '시키다, 허락하다' },
-                    { base: 'put', past: 'put', pp: 'put', mean: '놓다' },
-                    { base: 'quit', past: 'quit', pp: 'quit', mean: '그만두다' },
-                    { base: 'read', past: 'read', pp: 'read', mean: '읽다' },
-                    { base: 'set', past: 'set', pp: 'set', mean: '놓다, 설정하다' },
-                    { base: 'shed', past: 'shed', pp: 'shed', mean: '흘리다' },
-                    { base: 'shut', past: 'shut', pp: 'shut', mean: '닫다' },
-                    { base: 'split', past: 'split', pp: 'split', mean: '쪼개다' },
-                    { base: 'spread', past: 'spread', pp: 'spread', mean: '퍼지다, 펴다' },
-                    { base: 'thrust', past: 'thrust', pp: 'thrust', mean: '밀다, 찌르다' },
-                    { base: 'upset', past: 'upset', pp: 'upset', mean: '화나게 하다' }
-                ]
-            },
-            {
-                title: "A-B-B형 (-ought / -aught)",
-                list: [
-                    { base: 'bring', past: 'brought', pp: 'brought', mean: '가져오다' },
-                    { base: 'buy', past: 'bought', pp: 'bought', mean: '사다' },
-                    { base: 'catch', past: 'caught', pp: 'caught', mean: '잡다' },
-                    { base: 'fight', past: 'fought', pp: 'fought', mean: '싸우다' },
-                    { base: 'seek', past: 'sought', pp: 'sought', mean: '찾다, 추구하다' },
-                    { base: 'teach', past: 'taught', pp: 'taught', mean: '가르치다' },
-                    { base: 'think', past: 'thought', pp: 'thought', mean: '생각하다' }
-                ]
-            },
-            {
-                title: "A-B-B형 (기타)",
-                list: [
-                    { base: 'bend', past: 'bent', pp: 'bent', mean: '구부리다' },
-                    { base: 'bind', past: 'bound', pp: 'bound', mean: '묶다' },
-                    { base: 'bleed', past: 'bled', pp: 'bled', mean: '피를 흘리다' },
-                    { base: 'breed', past: 'bred', pp: 'bred', mean: '기르다, 사육하다' },
-                    { base: 'build', past: 'built', pp: 'built', mean: '짓다' },
-                    { base: 'cling', past: 'clung', pp: 'clung', mean: '달라붙다' },
-                    { base: 'creep', past: 'crept', pp: 'crept', mean: '기어가다' },
-                    { base: 'deal', past: 'dealt', pp: 'dealt', mean: '다루다, 처리하다' },
-                    { base: 'dig', past: 'dug', pp: 'dug', mean: '파다' },
-                    { base: 'feed', past: 'fed', pp: 'fed', mean: '먹이를 주다' },
-                    { base: 'feel', past: 'felt', pp: 'felt', mean: '느끼다' },
-                    { base: 'find', past: 'found', pp: 'found', mean: '찾다, 발견하다' },
-                    { base: 'flee', past: 'fled', pp: 'fled', mean: '달아나다' },
-                    { base: 'grind', past: 'ground', pp: 'ground', mean: '갈다' },
-                    { base: 'hang', past: 'hung', pp: 'hung', mean: '걸다, 매달다' },
-                    { base: 'have', past: 'had', pp: 'had', mean: '가지다' },
-                    { base: 'hear', past: 'heard', pp: 'heard', mean: '듣다' },
-                    { base: 'hold', past: 'held', pp: 'held', mean: '잡다, 개최하다' },
-                    { base: 'keep', past: 'kept', pp: 'kept', mean: '유지하다' },
-                    { base: 'lay', past: 'laid', pp: 'laid', mean: '놓다, 눕히다' },
-                    { base: 'lead', past: 'led', pp: 'led', mean: '이끌다' },
-                    { base: 'leave', past: 'left', pp: 'left', mean: '떠나다, 남기다' },
-                    { base: 'lend', past: 'lent', pp: 'lent', mean: '빌려주다' },
-                    { base: 'lose', past: 'lost', pp: 'lost', mean: '잃다, 지다' },
-                    { base: 'make', past: 'made', pp: 'made', mean: '만들다' },
-                    { base: 'mean', past: 'meant', pp: 'meant', mean: '의미하다' },
-                    { base: 'meet', past: 'met', pp: 'met', mean: '만나다' },
-                    { base: 'mislead', past: 'misled', pp: 'misled', mean: '오도하다' },
-                    { base: 'pay', past: 'paid', pp: 'paid', mean: '지불하다' },
-                    { base: 'say', past: 'said', pp: 'said', mean: '말하다' },
-                    { base: 'sell', past: 'sold', pp: 'sold', mean: '팔다' },
-                    { base: 'send', past: 'sent', pp: 'sent', mean: '보내다' },
-                    { base: 'shine', past: 'shone', pp: 'shone', mean: '빛나다' },
-                    { base: 'shoot', past: 'shot', pp: 'shot', mean: '쏘다' },
-                    { base: 'sit', past: 'sat', pp: 'sat', mean: '앉다' },
-                    { base: 'sleep', past: 'slept', pp: 'slept', mean: '자다' },
-                    { base: 'slide', past: 'slid', pp: 'slid', mean: '미끄러지다' },
-                    { base: 'spend', past: 'spent', pp: 'spent', mean: '쓰다, 보내다' },
-                    { base: 'spin', past: 'spun', pp: 'spun', mean: '돌다, 회전하다' },
-                    { base: 'spit', past: 'spat', pp: 'spat', mean: '침을 뱉다' },
-                    { base: 'stand', past: 'stood', pp: 'stood', mean: '서다' },
-                    { base: 'stick', past: 'stuck', pp: 'stuck', mean: '붙이다, 찌르다' },
-                    { base: 'sting', past: 'stung', pp: 'stung', mean: '쏘다, 찌르다' },
-                    { base: 'sweep', past: 'swept', pp: 'swept', mean: '쓸다' },
-                    { base: 'swing', past: 'swung', pp: 'swung', mean: '흔들다' },
-                    { base: 'tell', past: 'told', pp: 'told', mean: '말하다' },
-                    { base: 'understand', past: 'understood', pp: 'understood', mean: '이해하다' },
-                    { base: 'weep', past: 'wept', pp: 'wept', mean: '울다' },
-                    { base: 'win', past: 'won', pp: 'won', mean: '이기다' },
-                    { base: 'wind', past: 'wound', pp: 'wound', mean: '감다' }
-                ]
-            },
-            {
-                title: "A-B-C형 (i-a-u)",
-                list: [
-                    { base: 'begin', past: 'began', pp: 'begun', mean: '시작하다' },
-                    { base: 'drink', past: 'drank', pp: 'drunk', mean: '마시다' },
-                    { base: 'ring', past: 'rang', pp: 'rung', mean: '울리다' },
-                    { base: 'shrink', past: 'shrank', pp: 'shrunk', mean: '줄어들다' },
-                    { base: 'sing', past: 'sang', pp: 'sung', mean: '노래하다' },
-                    { base: 'sink', past: 'sank', pp: 'sunk', mean: '가라앉다' },
-                    { base: 'spring', past: 'sprang', pp: 'sprung', mean: '튀어 오르다' },
-                    { base: 'stink', past: 'stank', pp: 'stunk', mean: '악취가 나다' },
-                    { base: 'swim', past: 'swam', pp: 'swum', mean: '수영하다' }
-                ]
-            },
-            {
-                title: "A-B-C형 (-en / -own 등)",
-                list: [
-                    { base: 'arise', past: 'arose', pp: 'arisen', mean: '발생하다, 일어나다' },
-                    { base: 'awake', past: 'awoke', pp: 'awoken', mean: '깨다, 깨우다' },
-                    { base: 'be', past: 'was/were', pp: 'been', mean: '~이다, 있다' },
-                    { base: 'bear', past: 'bore', pp: 'born/borne', mean: '참다, 낳다' },
-                    { base: 'beat', past: 'beat', pp: 'beaten', mean: '치다, 이기다' },
-                    { base: 'bite', past: 'bit', pp: 'bitten', mean: '물다' },
-                    { base: 'blow', past: 'blew', pp: 'blown', mean: '불다' },
-                    { base: 'break', past: 'broke', pp: 'broken', mean: '부수다' },
-                    { base: 'choose', past: 'chose', pp: 'chosen', mean: '선택하다' },
-                    { base: 'do', past: 'did', pp: 'done', mean: '하다' },
-                    { base: 'draw', past: 'drew', pp: 'drawn', mean: '그리다, 끌다' },
-                    { base: 'drive', past: 'drove', pp: 'driven', mean: '운전하다' },
-                    { base: 'eat', past: 'ate', pp: 'eaten', mean: '먹다' },
-                    { base: 'fall', past: 'fell', pp: 'fallen', mean: '떨어지다' },
-                    { base: 'fly', past: 'flew', pp: 'flown', mean: '날다' },
-                    { base: 'forbid', past: 'forbade', pp: 'forbidden', mean: '금지하다' },
-                    { base: 'forget', past: 'forgot', pp: 'forgotten', mean: '잊다' },
-                    { base: 'forgive', past: 'forgave', pp: 'forgiven', mean: '용서하다' },
-                    { base: 'freeze', past: 'froze', pp: 'frozen', mean: '얼다' },
-                    { base: 'get', past: 'got', pp: 'got/gotten', mean: '얻다' },
-                    { base: 'give', past: 'gave', pp: 'given', mean: '주다' },
-                    { base: 'go', past: 'went', pp: 'gone', mean: '가다' },
-                    { base: 'grow', past: 'grew', pp: 'grown', mean: '자라다' },
-                    { base: 'hide', past: 'hid', pp: 'hidden', mean: '숨다, 숨기다' },
-                    { base: 'know', past: 'knew', pp: 'known', mean: '알다' },
-                    { base: 'lie', past: 'lay', pp: 'lain', mean: '눕다' },
-                    { base: 'mistake', past: 'mistook', pp: 'mistaken', mean: '실수하다' },
-                    { base: 'ride', past: 'rode', pp: 'ridden', mean: '타다' },
-                    { base: 'rise', past: 'rose', pp: 'risen', mean: '오르다, 뜨다' },
-                    { base: 'see', past: 'saw', pp: 'seen', mean: '보다' },
-                    { base: 'shake', past: 'shook', pp: 'shaken', mean: '흔들다' },
-                    { base: 'show', past: 'showed', pp: 'shown/showed', mean: '보여주다' },
-                    { base: 'speak', past: 'spoke', pp: 'spoken', mean: '말하다' },
-                    { base: 'steal', past: 'stole', pp: 'stolen', mean: '훔치다' },
-                    { base: 'swear', past: 'swore', pp: 'sworn', mean: '맹세하다' },
-                    { base: 'take', past: 'took', pp: 'taken', mean: '가져가다, 타다' },
-                    { base: 'tear', past: 'tore', pp: 'torn', mean: '찢다' },
-                    { base: 'throw', past: 'threw', pp: 'thrown', mean: '던지다' },
-                    { base: 'wake', past: 'woke', pp: 'woken', mean: '깨다, 일어나다' },
-                    { base: 'wear', past: 'wore', pp: 'worn', mean: '입다' },
-                    { base: 'weave', past: 'wove', pp: 'woven', mean: '짜다, 엮다' },
-                    { base: 'withdraw', past: 'withdrew', pp: 'withdrawn', mean: '인출하다, 철회하다' },
-                    { base: 'write', past: 'wrote', pp: 'written', mean: '쓰다' }
-                ]
-            },
-            {
-                title: "A-B-A형",
-                list: [
-                    { base: 'become', past: 'became', pp: 'become', mean: '~이 되다' },
-                    { base: 'come', past: 'came', pp: 'come', mean: '오다' },
-                    { base: 'overcome', past: 'overcame', pp: 'overcome', mean: '극복하다' },
-                    { base: 'run', past: 'ran', pp: 'run', mean: '달리다' }
-                ]
-            },
-            {
-                title: "규칙/불규칙 혼합형",
-                list: [
-                    { base: 'burn', past: 'burnt/burned', pp: 'burnt/burned', mean: '타다, 태우다' },
-                    { base: 'dream', past: 'dreamt/dreamed', pp: 'dreamt/dreamed', mean: '꿈꾸다' },
-                    { base: 'kneel', past: 'knelt/kneeled', pp: 'knelt/kneeled', mean: '무릎을 꿇다' },
-                    { base: 'lean', past: 'leant/leaned', pp: 'leant/leaned', mean: '기대다' },
-                    { base: 'leap', past: 'leapt/leaped', pp: 'leapt/leaped', mean: '뛰어오르다' },
-                    { base: 'learn', past: 'learnt/learned', pp: 'learnt/learned', mean: '배우다' },
-                    { base: 'light', past: 'lit/lighted', pp: 'lit/lighted', mean: '불을 켜다' },
-                    { base: 'prove', past: 'proved', pp: 'proven/proved', mean: '증명하다' },
-                    { base: 'mow', past: 'mowed', pp: 'mown/mowed', mean: '풀을 베다' },
-                    { base: 'saw', past: 'sawed', pp: 'sawn/sawed', mean: '톱질하다' },
-                    { base: 'sew', past: 'sewed', pp: 'sewn/sewed', mean: '바느질하다' },
-                    { base: 'shave', past: 'shaved', pp: 'shaven/shaved', mean: '면도하다' },
-                    { base: 'shear', past: 'shore/sheared', pp: 'shorn/sheared', mean: '털을 깎다' },
-                    { base: 'smell', past: 'smelt/smelled', pp: 'smelt/smelled', mean: '냄새 맡다' },
-                    { base: 'sow', past: 'sowed', pp: 'sown/sowed', mean: '씨를 뿌리다' },
-                    { base: 'speed', past: 'sped/speeded', pp: 'sped/speeded', mean: '속도를 내다' },
-                    { base: 'spell', past: 'spelt/spelled', pp: 'spelt/spelled', mean: '철자를 쓰다' },
-                    { base: 'spill', past: 'spilt/spilled', pp: 'spilt/spilled', mean: '엎지르다' },
-                    { base: 'spoil', past: 'spoilt/spoiled', pp: 'spoilt/spoiled', mean: '망치다' },
-                    { base: 'strike', past: 'struck', pp: 'struck/stricken', mean: '치다, 파업하다' },
-                    { base: 'strive', past: 'strove', pp: 'striven', mean: '노력하다, 애쓰다' },
-                    { base: 'swell', past: 'swelled', pp: 'swollen/swelled', mean: '부풀다, 붓다' },
-                    { base: 'tread', past: 'trod', pp: 'trodden/trod', mean: '밟다' }
-                ]
-            }
+        // === 원본 동사 리스트 ===
+        const originalVerbGroups = [
+            { title: "A-A-A형 (변화 없음)", list: [{ base: 'bet', past: 'bet', pp: 'bet', mean: '돈을 걸다' }, { base: 'broadcast', past: 'broadcast', pp: 'broadcast', mean: '방송하다' }, { base: 'burst', past: 'burst', pp: 'burst', mean: '터지다' }, { base: 'cast', past: 'cast', pp: 'cast', mean: '던지다' }, { base: 'cost', past: 'cost', pp: 'cost', mean: '비용이 들다' }, { base: 'cut', past: 'cut', pp: 'cut', mean: '자르다' }, { base: 'forecast', past: 'forecast', pp: 'forecast', mean: '예보하다' }, { base: 'hit', past: 'hit', pp: 'hit', mean: '치다' }, { base: 'hurt', past: 'hurt', pp: 'hurt', mean: '다치게 하다' }, { base: 'let', past: 'let', pp: 'let', mean: '시키다, 허락하다' }, { base: 'put', past: 'put', pp: 'put', mean: '놓다' }, { base: 'quit', past: 'quit', pp: 'quit', mean: '그만두다' }, { base: 'read', past: 'read', pp: 'read', mean: '읽다' }, { base: 'set', past: 'set', pp: 'set', mean: '놓다, 설정하다' }, { base: 'shed', past: 'shed', pp: 'shed', mean: '흘리다' }, { base: 'shut', past: 'shut', pp: 'shut', mean: '닫다' }, { base: 'split', past: 'split', pp: 'split', mean: '쪼개다' }, { base: 'spread', past: 'spread', pp: 'spread', mean: '퍼지다, 펴다' }, { base: 'thrust', past: 'thrust', pp: 'thrust', mean: '밀다, 찌르다' }, { base: 'upset', past: 'upset', pp: 'upset', mean: '화나게 하다' }] },
+            { title: "A-B-B형 (-ought/-aught)", list: [{ base: 'bring', past: 'brought', pp: 'brought', mean: '가져오다' }, { base: 'buy', past: 'bought', pp: 'bought', mean: '사다' }, { base: 'catch', past: 'caught', pp: 'caught', mean: '잡다' }, { base: 'fight', past: 'fought', pp: 'fought', mean: '싸우다' }, { base: 'seek', past: 'sought', pp: 'sought', mean: '찾다, 추구하다' }, { base: 'teach', past: 'taught', pp: 'taught', mean: '가르치다' }, { base: 'think', past: 'thought', pp: 'thought', mean: '생각하다' }] },
+            { title: "A-B-B형 (기타)", list: [{ base: 'bend', past: 'bent', pp: 'bent', mean: '구부리다' }, { base: 'bind', past: 'bound', pp: 'bound', mean: '묶다' }, { base: 'bleed', past: 'bled', pp: 'bled', mean: '피를 흘리다' }, { base: 'breed', past: 'bred', pp: 'bred', mean: '기르다, 사육하다' }, { base: 'build', past: 'built', pp: 'built', mean: '짓다' }, { base: 'cling', past: 'clung', pp: 'clung', mean: '달라붙다' }, { base: 'creep', past: 'crept', pp: 'crept', mean: '기어가다' }, { base: 'deal', past: 'dealt', pp: 'dealt', mean: '다루다, 처리하다' }, { base: 'dig', past: 'dug', pp: 'dug', mean: '파다' }, { base: 'feed', past: 'fed', pp: 'fed', mean: '먹이를 주다' }, { base: 'feel', past: 'felt', pp: 'felt', mean: '느끼다' }, { base: 'find', past: 'found', pp: 'found', mean: '찾다, 발견하다' }, { base: 'flee', past: 'fled', pp: 'fled', mean: '달아나다' }, { base: 'grind', past: 'ground', pp: 'ground', mean: '갈다' }, { base: 'hang', past: 'hung', pp: 'hung', mean: '걸다, 매달다' }, { base: 'have', past: 'had', pp: 'had', mean: '가지다' }, { base: 'hear', past: 'heard', pp: 'heard', mean: '듣다' }, { base: 'hold', past: 'held', pp: 'held', mean: '잡다, 개최하다' }, { base: 'keep', past: 'kept', pp: 'kept', mean: '유지하다' }, { base: 'lay', past: 'laid', pp: 'laid', mean: '놓다, 눕히다' }, { base: 'lead', past: 'led', pp: 'led', mean: '이끌다' }, { base: 'leave', past: 'left', pp: 'left', mean: '떠나다, 남기다' }, { base: 'lend', past: 'lent', pp: 'lent', mean: '빌려주다' }, { base: 'lose', past: 'lost', pp: 'lost', mean: '잃다, 지다' }, { base: 'make', past: 'made', pp: 'made', mean: '만들다' }, { base: 'mean', past: 'meant', pp: 'meant', mean: '의미하다' }, { base: 'meet', past: 'met', pp: 'met', mean: '만나다' }, { base: 'mislead', past: 'misled', pp: 'misled', mean: '오도하다' }, { base: 'pay', past: 'paid', pp: 'paid', mean: '지불하다' }, { base: 'say', past: 'said', pp: 'said', mean: '말하다' }, { base: 'sell', past: 'sold', pp: 'sold', mean: '팔다' }, { base: 'send', past: 'sent', pp: 'sent', mean: '보내다' }, { base: 'shine', past: 'shone', pp: 'shone', mean: '빛나다' }, { base: 'shoot', past: 'shot', pp: 'shot', mean: '쏘다' }, { base: 'sit', past: 'sat', pp: 'sat', mean: '앉다' }, { base: 'sleep', past: 'slept', pp: 'slept', mean: '자다' }, { base: 'slide', past: 'slid', pp: 'slid', mean: '미끄러지다' }, { base: 'spend', past: 'spent', pp: 'spent', mean: '쓰다, 보내다' }, { base: 'spin', past: 'spun', pp: 'spun', mean: '돌다, 회전하다' }, { base: 'spit', past: 'spat', pp: 'spat', mean: '침을 뱉다' }, { base: 'stand', past: 'stood', pp: 'stood', mean: '서다' }, { base: 'stick', past: 'stuck', pp: 'stuck', mean: '붙이다, 찌르다' }, { base: 'sting', past: 'stung', pp: 'stung', mean: '쏘다, 찌르다' }, { base: 'sweep', past: 'swept', pp: 'swept', mean: '쓸다' }, { base: 'swing', past: 'swung', pp: 'swung', mean: '흔들다' }, { base: 'tell', past: 'told', pp: 'told', mean: '말하다' }, { base: 'understand', past: 'understood', pp: 'understood', mean: '이해하다' }, { base: 'weep', past: 'wept', pp: 'wept', mean: '울다' }, { base: 'win', past: 'won', pp: 'won', mean: '이기다' }, { base: 'wind', past: 'wound', pp: 'wound', mean: '감다' }] },
+            { title: "A-B-C형 (i-a-u)", list: [{ base: 'begin', past: 'began', pp: 'begun', mean: '시작하다' }, { base: 'drink', past: 'drank', pp: 'drunk', mean: '마시다' }, { base: 'ring', past: 'rang', pp: 'rung', mean: '울리다' }, { base: 'shrink', past: 'shrank', pp: 'shrunk', mean: '줄어들다' }, { base: 'sing', past: 'sang', pp: 'sung', mean: '노래하다' }, { base: 'sink', past: 'sank', pp: 'sunk', mean: '가라앉다' }, { base: 'spring', past: 'sprang', pp: 'sprung', mean: '튀어 오르다' }, { base: 'stink', past: 'stank', pp: 'stunk', mean: '악취가 나다' }, { base: 'swim', past: 'swam', pp: 'swum', mean: '수영하다' }] },
+            { title: "A-B-C형 (-en/-own 등)", list: [{ base: 'arise', past: 'arose', pp: 'arisen', mean: '발생하다, 일어나다' }, { base: 'awake', past: 'awoke', pp: 'awoken', mean: '깨다, 깨우다' }, { base: 'be', past: 'was/were', pp: 'been', mean: '~이다, 있다' }, { base: 'bear', past: 'bore', pp: 'born/borne', mean: '참다, 낳다' }, { base: 'beat', past: 'beat', pp: 'beaten', mean: '치다, 이기다' }, { base: 'bite', past: 'bit', pp: 'bitten', mean: '물다' }, { base: 'blow', past: 'blew', pp: 'blown', mean: '불다' }, { base: 'break', past: 'broke', pp: 'broken', mean: '부수다' }, { base: 'choose', past: 'chose', pp: 'chosen', mean: '선택하다' }, { base: 'do', past: 'did', pp: 'done', mean: '하다' }, { base: 'draw', past: 'drew', pp: 'drawn', mean: '그리다, 끌다' }, { base: 'drive', past: 'drove', pp: 'driven', mean: '운전하다' }, { base: 'eat', past: 'ate', pp: 'eaten', mean: '먹다' }, { base: 'fall', past: 'fell', pp: 'fallen', mean: '떨어지다' }, { base: 'fly', past: 'flew', pp: 'flown', mean: '날다' }, { base: 'forbid', past: 'forbade', pp: 'forbidden', mean: '금지하다' }, { base: 'forget', past: 'forgot', pp: 'forgotten', mean: '잊다' }, { base: 'forgive', past: 'forgave', pp: 'forgiven', mean: '용서하다' }, { base: 'freeze', past: 'froze', pp: 'frozen', mean: '얼다' }, { base: 'get', past: 'got', pp: 'got/gotten', mean: '얻다' }, { base: 'give', past: 'gave', pp: 'given', mean: '주다' }, { base: 'go', past: 'went', pp: 'gone', mean: '가다' }, { base: 'grow', past: 'grew', pp: 'grown', mean: '자라다' }, { base: 'hide', past: 'hid', pp: 'hidden', mean: '숨다, 숨기다' }, { base: 'know', past: 'knew', pp: 'known', mean: '알다' }, { base: 'lie', past: 'lay', pp: 'lain', mean: '눕다' }, { base: 'mistake', past: 'mistook', pp: 'mistaken', mean: '실수하다' }, { base: 'ride', past: 'rode', pp: 'ridden', mean: '타다' }, { base: 'rise', past: 'rose', pp: 'risen', mean: '오르다, 뜨다' }, { base: 'see', past: 'saw', pp: 'seen', mean: '보다' }, { base: 'shake', past: 'shook', pp: 'shaken', mean: '흔들다' }, { base: 'show', past: 'showed', pp: 'shown/showed', mean: '보여주다' }, { base: 'speak', past: 'spoke', pp: 'spoken', mean: '말하다' }, { base: 'steal', past: 'stole', pp: 'stolen', mean: '훔치다' }, { base: 'swear', past: 'swore', pp: 'sworn', mean: '맹세하다' }, { base: 'take', past: 'took', pp: 'taken', mean: '가져가다, 타다' }, { base: 'tear', past: 'tore', pp: 'torn', mean: '찢다' }, { base: 'throw', past: 'threw', pp: 'thrown', mean: '던지다' }, { base: 'wake', past: 'woke', pp: 'woken', mean: '깨다, 일어나다' }, { base: 'wear', past: 'wore', pp: 'worn', mean: '입다' }, { base: 'weave', past: 'wove', pp: 'woven', mean: '짜다, 엮다' }, { base: 'withdraw', past: 'withdrew', pp: 'withdrawn', mean: '인출하다, 철회하다' }, { base: 'write', past: 'wrote', pp: 'written', mean: '쓰다' }] },
+            { title: "A-B-A형", list: [{ base: 'become', past: 'became', pp: 'become', mean: '~이 되다' }, { base: 'come', past: 'came', pp: 'come', mean: '오다' }, { base: 'overcome', past: 'overcame', pp: 'overcome', mean: '극복하다' }, { base: 'run', past: 'ran', pp: 'run', mean: '달리다' }] },
+            { title: "규칙/불규칙 혼합형", list: [{ base: 'burn', past: 'burnt/burned', pp: 'burnt/burned', mean: '타다, 태우다' }, { base: 'dream', past: 'dreamt/dreamed', pp: 'dreamt/dreamed', mean: '꿈꾸다' }, { base: 'kneel', past: 'knelt/kneeled', pp: 'knelt/kneeled', mean: '무릎을 꿇다' }, { base: 'lean', past: 'leant/leaned', pp: 'leant/leaned', mean: '기대다' }, { base: 'leap', past: 'leapt/leaped', pp: 'leapt/leaped', mean: '뛰어오르다' }, { base: 'learn', past: 'learnt/learned', pp: 'learnt/learned', mean: '배우다' }, { base: 'light', past: 'lit/lighted', pp: 'lit/lighted', mean: '불을 켜다' }, { base: 'prove', past: 'proved', pp: 'proven/proved', mean: '증명하다' }, { base: 'mow', past: 'mowed', pp: 'mown/mowed', mean: '풀을 베다' }, { base: 'saw', past: 'sawed', pp: 'sawn/sawed', mean: '톱질하다' }, { base: 'sew', past: 'sewed', pp: 'sewn/sewed', mean: '바느질하다' }, { base: 'shave', past: 'shaved', pp: 'shaven/shaved', mean: '면도하다' }, { base: 'shear', past: 'shore/sheared', pp: 'shorn/sheared', mean: '털을 깎다' }, { base: 'smell', past: 'smelt/smelled', pp: 'smelt/smelled', mean: '냄새 맡다' }, { base: 'sow', past: 'sowed', pp: 'sown/sowed', mean: '씨를 뿌리다' }, { base: 'speed', past: 'sped/speeded', pp: 'sped/speeded', mean: '속도를 내다' }, { base: 'spell', past: 'spelt/spelled', pp: 'spelt/spelled', mean: '철자를 쓰다' }, { base: 'spill', past: 'spilt/spilled', pp: 'spilt/spilled', mean: '엎지르다' }, { base: 'spoil', past: 'spoilt/spoiled', pp: 'spoilt/spoiled', mean: '망치다' }, { base: 'strike', past: 'struck', pp: 'struck/stricken', mean: '치다, 파업하다' }, { base: 'strive', past: 'strove', pp: 'striven', mean: '노력하다, 애쓰다' }, { base: 'swell', past: 'swelled', pp: 'swollen/swelled', mean: '부풀다, 붓다' }, { base: 'tread', past: 'trod', pp: 'trodden/trod', mean: '밟다' }] }
         ];
-        
-        const allVerbs = verbGroups.flatMap(group => group.list);
+
+        let verbGroups = [];
         let currentQuiz = [];
         let currentScore = 0;
         let currentGroupIndex = 0;
 
         // DOM 요소
-        const tabList = document.getElementById('tab-list');
-        const tabTest = document.getElementById('tab-test');
-        const listView = document.getElementById('list-view');
-        const testView = document.getElementById('test-view');
-        const groupTitle = document.getElementById('group-title');
-        const verbListBody = document.getElementById('verb-list-body');
-        const prevBtn = document.getElementById('prev-btn');
-        const nextBtn = document.getElementById('next-btn');
-        const testStartScreen = document.getElementById('test-start-screen');
-        const quizScreen = document.getElementById('quiz-screen');
-        const resultScreen = document.getElementById('result-screen');
-        const startTestBtn = document.getElementById('start-test-btn');
-        const gradeBtn = document.getElementById('grade-btn');
-        const quizContainer = document.getElementById('quiz-container');
-        const scoreText = document.getElementById('score-text');
-        const nameInput = document.getElementById('name-input');
-        const submitBtn = document.getElementById('submit-btn');
-        const submitStatus = document.getElementById('submit-status');
-        const retryBtn = document.getElementById('retry-btn');
+        const getEl = (id) => document.getElementById(id);
+        const tabList = getEl('tab-list'), tabTest = getEl('tab-test');
+        const listView = getEl('list-view'), testView = getEl('test-view');
+        const groupTitle = getEl('group-title'), verbListBody = getEl('verb-list-body');
+        const prevBtn = getEl('prev-btn'), nextBtn = getEl('next-btn');
+        const testSelectScreen = getEl('test-select-screen'), testGroupButtons = getEl('test-group-buttons');
+        const quizScreen = getEl('quiz-screen'), quizTitle = getEl('quiz-title'), quizContainer = getEl('quiz-container'), quizActions = getEl('quiz-actions');
+        const resultScreen = getEl('result-screen'), scoreText = getEl('score-text'), submissionForm = getEl('submission-form');
+        const backToSelectBtn = getEl('back-to-select-btn'), gradeBtn = getEl('grade-btn'), retryBtn = getEl('retry-btn');
+        const showSubmissionFormBtn = getEl('show-submission-form-btn'), nameInput = getEl('name-input'), submitBtn = getEl('submit-btn'), submitStatus = getEl('submit-status');
 
-        // 탭 전환 함수
+        // === 데이터 및 UI 초기화 함수 ===
+        
+        // 20개 초과 그룹 분할
+        const splitVerbGroups = () => {
+            const newGroups = [];
+            originalVerbGroups.forEach(group => {
+                if (group.list.length > VERB_GROUP_SIZE_LIMIT) {
+                    const totalChunks = Math.ceil(group.list.length / VERB_GROUP_SIZE_LIMIT);
+                    for (let i = 0; i < totalChunks; i++) {
+                        const chunk = group.list.slice(i * VERB_GROUP_SIZE_LIMIT, (i + 1) * VERB_GROUP_SIZE_LIMIT);
+                        newGroups.push({
+                            title: `${group.title} (${i + 1}/${totalChunks})`,
+                            list: chunk
+                        });
+                    }
+                } else {
+                    newGroups.push(group);
+                }
+            });
+            return newGroups;
+        };
+
+        // 탭 전환
         const switchTab = (tabName) => {
             if (tabName === 'list') {
                 tabList.classList.add('active');
                 tabTest.classList.remove('active');
                 listView.classList.remove('hidden');
                 testView.classList.add('hidden');
-                renderVerbGroup(); // 리스트 탭으로 올 때 현재 그룹 렌더링
             } else {
                 tabTest.classList.add('active');
                 tabList.classList.remove('active');
                 testView.classList.remove('hidden');
                 listView.classList.add('hidden');
-                resetTest(); // 테스트 탭으로 올 때 초기 화면으로
+                showTestSelection();
             }
         };
 
-        // 그룹별 리스트 렌더링 (페이지네이션)
+        // === 리스트 뷰 관련 함수 ===
+
         const renderVerbGroup = () => {
             const group = verbGroups[currentGroupIndex];
             groupTitle.textContent = `${group.title} (${currentGroupIndex + 1}/${verbGroups.length})`;
             verbListBody.innerHTML = group.list.map(v => `
-                <tr>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm font-medium text-gray-900">${v.base}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${v.past}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${v.pp}</td>
-                    <td class="px-4 py-4 whitespace-nowrap text-sm text-gray-500">${v.mean}</td>
+                <tr class="hover:bg-gray-50">
+                    <td class="px-4 py-3 whitespace-nowrap text-sm font-medium text-gray-900">${v.base}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${v.past}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${v.pp}</td>
+                    <td class="px-4 py-3 whitespace-nowrap text-sm text-gray-500">${v.mean}</td>
                 </tr>
             `).join('');
-            
-            // 버튼 활성화/비활성화
             prevBtn.disabled = currentGroupIndex === 0;
             nextBtn.disabled = currentGroupIndex === verbGroups.length - 1;
         };
         
-        const showNextGroup = () => {
-            if (currentGroupIndex < verbGroups.length - 1) {
-                currentGroupIndex++;
-                renderVerbGroup();
-            }
-        };
-
-        const showPrevGroup = () => {
-            if (currentGroupIndex > 0) {
-                currentGroupIndex--;
-                renderVerbGroup();
-            }
+        // === 테스트 뷰 관련 함수 ===
+        
+        // 테스트 선택 화면 표시
+        const showTestSelection = () => {
+            quizScreen.classList.add('hidden');
+            resultScreen.classList.add('hidden');
+            testSelectScreen.classList.remove('hidden');
+            testGroupButtons.innerHTML = verbGroups.map((group, index) => `
+                <button data-group-index="${index}" class="group-select-btn w-full bg-white p-4 border-2 rounded-lg text-left hover:border-blue-500 hover:shadow-md">
+                    <span class="font-semibold text-gray-800">${group.title}</span>
+                    <span class="text-sm text-gray-500 block">${group.list.length}개 단어</span>
+                </button>
+            `).join('');
+            document.querySelectorAll('.group-select-btn').forEach(btn => {
+                btn.addEventListener('click', () => startTest(parseInt(btn.dataset.groupIndex)));
+            });
         };
 
         // 테스트 시작
-        const startTest = () => {
-            // 전체 동사 리스트를 섞고 10개 선택
-            currentQuiz = [...allVerbs].sort(() => 0.5 - Math.random()).slice(0, 10);
+        const startTest = (groupIndex) => {
+            const group = verbGroups[groupIndex];
+            currentQuiz = [...group.list].sort(() => 0.5 - Math.random());
+            quizTitle.textContent = group.title;
             renderQuiz();
-            testStartScreen.classList.add('hidden');
+            testSelectScreen.classList.add('hidden');
             resultScreen.classList.add('hidden');
             quizScreen.classList.remove('hidden');
-            gradeBtn.classList.remove('hidden'); // 채점하기 버튼 보이기
+            quizActions.classList.remove('hidden');
+            gradeBtn.classList.remove('hidden');
         };
 
-        // 퀴즈 렌더링
+        // 퀴즈 UI 렌더링
         const renderQuiz = () => {
             quizContainer.innerHTML = currentQuiz.map((v, i) => `
                 <div class="grid grid-cols-1 md:grid-cols-4 gap-2 items-center bg-gray-50 p-3 rounded-lg">
@@ -385,8 +227,8 @@
                         <span class="text-gray-500 ml-2">(${v.mean})</span>
                     </div>
                     <div class="md:col-span-2 grid grid-cols-2 gap-2">
-                         <input type="text" data-type="past" data-index="${i}" class="w-full p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" placeholder="과거형">
-                         <input type="text" data-type="pp" data-index="${i}" class="w-full p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all duration-200" placeholder="과거분사형">
+                         <input type="text" data-type="past" data-index="${i}" class="w-full p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
+                         <input type="text" data-type="pp" data-index="${i}" class="w-full p-2 border-2 border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500">
                     </div>
                     <div class="md:col-start-3 md:col-span-2 grid grid-cols-2 gap-2 mt-1">
                         <div class="feedback" data-feedback-type="past" data-index="${i}"></div>
@@ -399,8 +241,7 @@
         // 채점
         const gradeTest = () => {
             currentScore = 0;
-            const inputs = quizContainer.querySelectorAll('input[type="text"]');
-            inputs.forEach(input => input.disabled = true);
+            quizContainer.querySelectorAll('input[type="text"]').forEach(input => input.disabled = true);
 
             currentQuiz.forEach((verb, index) => {
                 const pastInput = quizContainer.querySelector(`input[data-type="past"][data-index="${index}"]`);
@@ -408,60 +249,60 @@
                 const pastFeedback = quizContainer.querySelector(`div[data-feedback-type="past"][data-index="${index}"]`);
                 const ppFeedback = quizContainer.querySelector(`div[data-feedback-type="pp"][data-index="${index}"]`);
 
-                let questionScore = 0;
+                let questionCorrect = true;
 
                 // 과거형 채점
                 if (verb.past.split('/').includes(pastInput.value.trim().toLowerCase())) {
-                    questionScore += 0.5;
                     pastInput.classList.add('correct-input');
-                    pastFeedback.textContent = '정답!';
-                    pastFeedback.classList.add('correct');
+                    pastFeedback.innerHTML = '&nbsp;'; // 맞으면 피드백 없음
                 } else {
+                    questionCorrect = false;
                     pastInput.classList.add('incorrect-input');
-                    pastFeedback.innerHTML = `오답 (정답: ${verb.past})`;
+                    pastFeedback.innerHTML = `정답: <span class="font-bold">${verb.past}</span>`;
                     pastFeedback.classList.add('incorrect');
                 }
 
                 // 과거분사형 채점
                 if (verb.pp.split('/').includes(ppInput.value.trim().toLowerCase())) {
-                    questionScore += 0.5;
                     ppInput.classList.add('correct-input');
-                    ppFeedback.textContent = '정답!';
-                    ppFeedback.classList.add('correct');
+                    ppFeedback.innerHTML = '&nbsp;';
                 } else {
+                    questionCorrect = false;
                     ppInput.classList.add('incorrect-input');
-                    ppFeedback.innerHTML = `오답 (정답: ${verb.pp})`;
+                    ppFeedback.innerHTML = `정답: <span class="font-bold">${verb.pp}</span>`;
                     ppFeedback.classList.add('incorrect');
                 }
 
-                if (questionScore === 1) {
-                    currentScore++;
-                }
+                if (questionCorrect) currentScore++;
             });
             
-            gradeBtn.classList.add('hidden'); // 채점 후 버튼 숨기기
+            gradeBtn.classList.add('hidden');
             showResult();
         };
 
-        // 결과 보여주기
+        // 결과 화면 표시
         const showResult = () => {
             scoreText.textContent = `${currentScore} / ${currentQuiz.length}`;
-            quizScreen.classList.add('hidden');
+            quizActions.classList.add('hidden'); // 채점 버튼 영역 숨기기
             resultScreen.classList.remove('hidden');
+            submissionForm.classList.add('hidden'); // 전송 폼은 일단 숨김
+            showSubmissionFormBtn.classList.remove('hidden'); // 기록하기 버튼 표시
             submitStatus.textContent = '';
             nameInput.value = '';
         };
 
         // 결과 전송
         const submitResult = () => {
+            if (!confirm("결과를 전송하시겠습니까?")) return;
+
             const name = nameInput.value.trim();
             if (!name) {
                 submitStatus.textContent = '이름을 입력해주세요.';
                 submitStatus.style.color = 'red';
                 return;
             }
-            if (SCRIPT_URL === "YOUR_APPS_SCRIPT_URL_HERE" || SCRIPT_URL.trim() === "") {
-                 submitStatus.textContent = '스크립트 URL을 설정해야 합니다.';
+            if (!SCRIPT_URL || SCRIPT_URL.trim() === "") {
+                 submitStatus.textContent = '스크립트 URL이 설정되지 않았습니다.';
                  submitStatus.style.color = 'red';
                  return;
             }
@@ -472,26 +313,22 @@
 
             const data = {
                 name: name,
+                quizTitle: quizTitle.textContent,
                 score: `${currentScore} / ${currentQuiz.length}`
             };
             
-            // fetch API가 no-cors 모드일 때 POST 요청은 응답을 제대로 읽지 못하지만,
-            // Apps Script에는 데이터가 정상적으로 전송됩니다. 
-            // 따라서 성공/실패 여부를 catch 블록만으로 판단하기 어려워, 일단 성공으로 간주합니다.
             fetch(SCRIPT_URL, {
                 method: 'POST',
                 mode: 'no-cors', 
                 cache: 'no-cache',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(data),
-                redirect: 'follow'
+                body: JSON.stringify(data)
             })
             .then(() => {
-                submitStatus.textContent = '결과가 성공적으로 전송되었습니다!';
+                submitStatus.textContent = '성공적으로 전송되었습니다!';
                 submitStatus.style.color = 'green';
             })
             .catch(error => {
-                // 네트워크 오류 등 실제 전송 실패 시
                 submitStatus.textContent = '전송 중 오류가 발생했습니다.';
                 submitStatus.style.color = 'red';
                 console.error('Error:', error);
@@ -500,26 +337,37 @@
                 submitBtn.disabled = false;
             });
         };
-        
-        // 다시 시작
-        const resetTest = () => {
-            resultScreen.classList.add('hidden');
-            quizScreen.classList.add('hidden');
-            testStartScreen.classList.remove('hidden');
-        };
 
-        // 이벤트 리스너
+        // === 이벤트 리스너 등록 ===
+        
+        // 탭
         tabList.addEventListener('click', () => switchTab('list'));
         tabTest.addEventListener('click', () => switchTab('test'));
-        prevBtn.addEventListener('click', showPrevGroup);
-        nextBtn.addEventListener('click', showNextGroup);
-        startTestBtn.addEventListener('click', startTest);
+        
+        // 리스트 뷰
+        prevBtn.addEventListener('click', () => { if (currentGroupIndex > 0) { currentGroupIndex--; renderVerbGroup(); }});
+        nextBtn.addEventListener('click', () => { if (currentGroupIndex < verbGroups.length - 1) { currentGroupIndex++; renderVerbGroup(); }});
+        
+        // 퀴즈 뷰
+        backToSelectBtn.addEventListener('click', showTestSelection);
         gradeBtn.addEventListener('click', gradeTest);
+        retryBtn.addEventListener('click', showTestSelection); // '다른 그룹 테스트하기'
+        
+        // 결과 전송 뷰
+        showSubmissionFormBtn.addEventListener('click', () => {
+            submissionForm.classList.remove('hidden');
+            showSubmissionFormBtn.classList.add('hidden');
+        });
         submitBtn.addEventListener('click', submitResult);
-        retryBtn.addEventListener('click', startTest); // 다시 풀기 버튼은 바로 새 테스트 시작
 
-        // 초기화
-        switchTab('list'); // 처음에는 '규칙별 리스트' 탭을 보여줌
+        // === 앱 시작 ===
+        const initialize = () => {
+            verbGroups = splitVerbGroups();
+            renderVerbGroup();
+            switchTab('list');
+        };
+
+        initialize();
     </script>
 </body>
 </html>
